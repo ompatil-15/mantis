@@ -47,3 +47,21 @@ async def check_field_exists(field_name: str, value: str) -> bool:
     except Exception as e:
         logging.debug(f"Error checking field {field_name} in the database: {e}")
         return False
+    
+async def delete_findings_query(query: dict) -> bool:
+    try:
+        if not query:
+            return False 
+        
+        result = await findings_collection.delete_many(query)
+        if result.deleted_count > 0:
+            logging.info(f"Successfully deleted {result.deleted_count} findings")
+            return True
+        else:
+            logging.warning("No matching findings found to delete")
+            return False
+
+    except Exception as e:
+        logging.error(f"Error deleting findings: {e}")
+        return False
+    

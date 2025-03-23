@@ -60,6 +60,14 @@ class ArgsParse:
             '''
     
     @staticmethod
+    def deboard_msg(name=None):                                                            
+        return '''
+        \033[1;34mDEBOARD: \033[0m
+        
+        \033[0;32mmantis deboard -o example_org\033[0m
+            '''
+    
+    @staticmethod
     def args_parse() -> ArgsModel:
         parsed_args = {}
 
@@ -266,6 +274,13 @@ class ArgsParse:
                             required = True,
                             help = "name of the organisation")
 
+        deboard_parser = subparser.add_parser("deboard", help="Deboard a target", usage=ArgsParse.deboard_msg())
+
+        deboard_parser.add_argument('-o', '--org',
+                            dest = 'org',
+                            required = True,
+                            help = "name of the organisation")
+
         # display help, if no arguments are passed
         args = parser.parse_args(args=None if argv[1:] else ['--help'])
         logging.info(f"Arguments Passed - {args}")
@@ -282,7 +297,7 @@ class ArgsParse:
                 parsed_args['input_type'] = "file"
                 parsed_args['input'] = str(args.file_name)
 
-        if args.subcommand != "list" and args.subcommand != "report":
+        if args.subcommand != "list" and args.subcommand != "report" and args.subcommand != "deboard":
 
             if args.aws_profiles:
                 parsed_args["aws_profiles"] = args.aws_profiles.split(',')
@@ -359,6 +374,10 @@ class ArgsParse:
 
                 if args.list_sub_command_ls_subs_before_filter:
                     parsed_args["before_datetime_filter"] = f"{args.list_sub_command_ls_subs_before_filter}T23:59:59Z"
+                    
+        if args.subcommand == "deboard":
+            parsed_args["deboard_"] = True
+            parsed_args['org'] = args.org
 
         args_pydantic_obj = ArgsModel.parse_obj(parsed_args)
         logging.info(f'parsed args - {args_pydantic_obj}')
