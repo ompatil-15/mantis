@@ -62,9 +62,13 @@ class ArgsParse:
     @staticmethod
     def deboard_msg(name=None):                                                            
         return '''
-        \033[1;34mDEBOARD: \033[0m
-        
+        \033[1;34mDEBOARD:\033[0m
+
         \033[0;32mmantis deboard -o example_org\033[0m
+        \033[0;32mmantis deboard -o example_org -s example_domain\033[0m
+        \033[0;32mmantis deboard -o example_org -a\033[0m
+        \033[0;32mmantis deboard -o example_org -a -f\033[0m
+        \033[0;32mmantis deboard -o example_org -a -s example_domain\033[0m
             '''
     
     @staticmethod
@@ -276,10 +280,11 @@ class ArgsParse:
 
         deboard_parser = subparser.add_parser("deboard", help="Deboard a target", usage=ArgsParse.deboard_msg())
 
-        deboard_parser.add_argument('-o', '--org',
-                            dest = 'org',
-                            required = True,
-                            help = "name of the organisation")
+        deboard_parser.add_argument('-o', '--org', dest='org', required=True, help="name of the organisation to deboard")
+        deboard_parser.add_argument('-s', '--sub', dest='subdomain', help="subdomain to deboard")
+        deboard_parser.add_argument('-a', '--assets', dest='assets', action='store_true', help="deboard all matching assets")
+        deboard_parser.add_argument('-f', '--findings', dest='findings', action='store_true', help="deboard all matching findings")
+        deboard_parser.add_argument('-e', '--extended-assets', dest='extended_assets', action='store_true', help="deboard all matching extended assets")
 
         # display help, if no arguments are passed
         args = parser.parse_args(args=None if argv[1:] else ['--help'])
@@ -378,6 +383,27 @@ class ArgsParse:
         if args.subcommand == "deboard":
             parsed_args["deboard_"] = True
             parsed_args['org'] = args.org
+            parsed_args["collections"] = []
+
+            if (args.subdomain):
+                parsed_args['subdomain'] = args.subdomain
+
+            collection_mapping = {
+                "assets": "assets",
+                "findings": "findings",
+                "extended_assets": "extended_assets",
+            }
+
+            for arg, collection in collection_mapping.items():
+                if getattr(args, arg, False):
+                    parsed_args["collections"].append(collection) 
+            
+            if not parsed_args["collections"]:
+                # default to all collections
+                parsed_args["collections"] = ["assets", "findings", "extended_assets"]
+
+            parsed_args["collections"] = list(set(parsed_args["collections"]))
+                
 
         args_pydantic_obj = ArgsModel.parse_obj(parsed_args)
         logging.info(f'parsed args - {args_pydantic_obj}')

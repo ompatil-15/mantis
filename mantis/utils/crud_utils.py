@@ -241,22 +241,4 @@ class CrudUtils:
                 if value in domain:
                     return key
         return default[0]
-        
-    @staticmethod
-    async def deboard_organisation(org: str) -> bool:
-        query = {"org": org}
-        
-        try:
-            deleted_assets = await delete_assets_query(query)
-            deleted_findings = await delete_findings_query(query)
-            deleted_extended_assets = await delete_extended_assets_query(query)
-
-            if not (deleted_findings or deleted_extended_assets or deleted_assets):
-                logging.warning(f"Organisation {org} not found in the database")
-                return False
-            
-            return True
-        except Exception as e:
-            logging.error(f"Error deboarding organisation {org}: {e}")
-            return False
-        
+    

@@ -39,13 +39,12 @@ async def delete_assets_query(query: dict) -> bool:
         if not query:
             return False 
         
+        logging.debug(f"Executing delete_assets_query: {query}")
         result = await assets_collection.delete_many(query)
-        if result.deleted_count > 0:
-            logging.info(f"Successfully deleted {result.deleted_count} assets")
-            return True
-        else:
-            logging.warning("No matching assets found to delete")
-            return False
+        logging.info(f"Deleted {result.deleted_count} asset{'s' if result.deleted_count != 1 else ''} from the database")
+
+        return result.deleted_count > 0
+
     except Exception as e:
         logging.error(f"Error deleting assets: {e}")
         return False

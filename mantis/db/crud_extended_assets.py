@@ -57,15 +57,13 @@ async def delete_extended_assets_query(query: dict) -> bool:
     try:
         if not query:
             return False  
-        
+
+        logging.debug(f"Executing delete_extended_assets_query: {query}")
         result = await extended_assets_collection.delete_many(query)
-        if result.deleted_count > 0:
-            logging.info(f"Successfully deleted {result.deleted_count} extended assets")
-            return True
-        else:
-            logging.warning("No matching extended assets found to delete")
-            return False
-        
+        logging.info(f"Deleted {result.deleted_count} extended asset{'s' if result.deleted_count != 1 else ''} from the database")
+
+        return result.deleted_count > 0
+
     except Exception as e:
         logging.error(f"Error deleting extended assets: {e}")
         return False
