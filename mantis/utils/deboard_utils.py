@@ -20,7 +20,7 @@ async def deboard_organisation(args):
 
         if subdomain:
             queries["assets"]["asset"] = subdomain
-            queries["findings"]["url"] = subdomain
+            queries["findings"]["host"] = subdomain
             queries["extended_assets"]["asset"] = subdomain
 
         delete_methods = {
